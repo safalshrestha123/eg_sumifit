@@ -6,10 +6,12 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { TestimonialCard } from "@/features/testimonials/testimonial-card";
-import { testimonials } from "@/features/testimonials/data";
+import type { Testimonial } from "@/types";
 
-export function TestimonialCarousel() {
+export function TestimonialCarousel({ testimonials }: { testimonials: Testimonial[] }) {
   const [index, setIndex] = useState(0);
+  const activeTestimonial = testimonials[index] ?? testimonials[0];
+  if (!activeTestimonial) return null;
   const previous = () => setIndex((value) => (value - 1 + testimonials.length) % testimonials.length);
   const next = () => setIndex((value) => (value + 1) % testimonials.length);
 
@@ -18,7 +20,7 @@ export function TestimonialCarousel() {
       <div className="relative mx-auto min-h-[25rem] max-w-3xl overflow-hidden" aria-live="polite">
         <AnimatePresence mode="wait">
           <motion.div key={index} initial={{ opacity: 0, x: 24, scale: 0.98 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: -24, scale: 0.98 }} transition={{ duration: 0.35 }}>
-            <TestimonialCard testimonial={testimonials[index]} />
+            <TestimonialCard testimonial={activeTestimonial} />
           </motion.div>
         </AnimatePresence>
       </div>

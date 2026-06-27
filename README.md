@@ -40,6 +40,8 @@ npm run dev:web
 
 The web app reads `NEXT_PUBLIC_API_URL` from `.env.local` and defaults to `http://127.0.0.1:4000`. For the MVP, the access token is kept in browser `sessionStorage`, so it is scoped to one tab and cleared on logout or an unauthorized API response.
 
+The public profile, achievements, certifications, programs, gallery, and testimonials are rendered from published CMS API records. The public contact form submits to `POST /api/public/contact`, and new enquiries appear in the protected CMS messages view.
+
 ## Quality checks
 
 ```bash
@@ -47,7 +49,5 @@ npm run lint
 npm run typecheck
 npm run build
 ```
-
-The contact form is intentionally frontend-only. Connect it to a form delivery service before deploying if submissions should be delivered.
 
 # eg_sumifit
