@@ -19,11 +19,12 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { clearAuthSession, getStoredUser, type AuthUser } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
 
 const navigation = [
@@ -40,8 +41,16 @@ const navigation = [
 
 export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [user] = useState<AuthUser | null>(getStoredUser);
   const currentPage = navigation.find((item) => item.href === pathname)?.label ?? "Admin";
+
+  const logout = () => {
+    clearAuthSession();
+    router.replace("/admin/login");
+    router.refresh();
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-950 dark:bg-gray-950 dark:text-white">
@@ -69,7 +78,6 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 <Link key={href} href={href} aria-current={active ? "page" : undefined} onClick={() => setSidebarOpen(false)} className={cn("flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition", active ? "bg-orange-50 text-orange-700 dark:bg-orange-500/10 dark:text-orange-300" : "text-gray-600 hover:bg-gray-100 hover:text-gray-950 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white")}>
                   <Icon className="size-4.5" />
                   <span>{label}</span>
-                  {label === "Messages" && <span className="ml-auto rounded-full bg-orange-500 px-2 py-0.5 text-[0.65rem] text-white">7</span>}
                 </Link>
               );
             })}
@@ -79,10 +87,10 @@ export function AdminShell({ children }: { children: ReactNode }) {
         <div className="border-t border-gray-100 p-4 dark:border-gray-800">
           <div className="mb-3 flex items-center gap-3 rounded-xl bg-gray-50 p-3 dark:bg-gray-800/70">
             <span className="grid size-9 shrink-0 place-items-center rounded-full bg-gray-950 text-xs font-black text-white dark:bg-white dark:text-gray-950">SF</span>
-            <div className="min-w-0 flex-1"><p className="truncate text-sm font-bold">Sumi Fitness</p><p className="truncate text-xs text-gray-500">Administrator</p></div>
+            <div className="min-w-0 flex-1"><p className="truncate text-sm font-bold">{user?.email ?? "SumiFitness"}</p><p className="truncate text-xs capitalize text-gray-500">{user?.role.toLowerCase() ?? "CMS user"}</p></div>
             <ChevronDown className="size-4 text-gray-400" />
           </div>
-          <Link href="/admin/login" className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-white"><LogOut className="size-4" /> Exit demo</Link>
+          <button type="button" onClick={logout} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-white"><LogOut className="size-4" /> Log out</button>
         </div>
       </aside>
 
