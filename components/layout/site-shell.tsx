@@ -9,7 +9,7 @@ import { Navbar } from "@/components/layout/navbar";
 export function SiteShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
-  if (pathname.startsWith("/admin")) return children;
+  if (pathname.startsWith("/admin") || pathname.startsWith("/client")) return children;
 
   return (
     <>

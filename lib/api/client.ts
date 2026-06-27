@@ -2,6 +2,7 @@ const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000").
 const tokenKey = "sumifitness.access-token";
 const userKey = "sumifitness.auth-user";
 export const authExpiredEvent = "sumifitness:auth-expired";
+export const authSessionChangedEvent = "sumifitness:auth-session-changed";
 
 export type AuthRole = "ADMIN" | "TRAINER" | "CLIENT";
 
@@ -139,6 +140,7 @@ export function setAuthSession(accessToken: string, user: AuthUser) {
   if (typeof window === "undefined") return;
   window.sessionStorage.setItem(tokenKey, accessToken);
   window.sessionStorage.setItem(userKey, JSON.stringify(user));
+  window.dispatchEvent(new Event(authSessionChangedEvent));
 }
 
 export function getAccessToken() {

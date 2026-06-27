@@ -1,12 +1,12 @@
 "use client";
 
+import { Dumbbell } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
-import { AdminLoading } from "@/components/admin/admin-loading";
 import { apiRequest, authExpiredEvent, clearAuthSession, getAccessToken, setAuthSession, type AuthUser } from "@/lib/api/client";
 
-export function AdminAuthGuard({ children }: { children: ReactNode }) {
+export function ClientAuthGuard({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [authorized, setAuthorized] = useState(false);
 
@@ -14,7 +14,7 @@ export function AdminAuthGuard({ children }: { children: ReactNode }) {
     let active = true;
     const redirectToLogin = () => {
       clearAuthSession();
-      router.replace("/admin/login");
+      router.replace("/client/login");
     };
     const token = getAccessToken();
 
@@ -27,11 +27,11 @@ export function AdminAuthGuard({ children }: { children: ReactNode }) {
     void apiRequest<{ user: AuthUser }>("/api/auth/me")
       .then(({ user }) => {
         if (!active) return;
-        if (user.role === "CLIENT") {
-          router.replace("/client/dashboard");
+        if (user.role === "ADMIN" || user.role === "TRAINER") {
+          router.replace("/admin/dashboard");
           return;
         }
-        if (user.role !== "ADMIN" && user.role !== "TRAINER") {
+        if (user.role !== "CLIENT") {
           redirectToLogin();
           return;
         }
@@ -47,7 +47,14 @@ export function AdminAuthGuard({ children }: { children: ReactNode }) {
   }, [router]);
 
   if (!authorized) {
-    return <main className="min-h-screen bg-gray-50 p-6 dark:bg-gray-950"><div className="mx-auto max-w-5xl pt-20"><AdminLoading /></div></main>;
+    return (
+      <main className="grid min-h-screen place-items-center bg-gray-50 px-6 dark:bg-gray-950">
+        <div className="text-center">
+          <span className="mx-auto grid size-12 animate-pulse place-items-center rounded-2xl bg-orange-500 text-white"><Dumbbell className="size-5" /></span>
+          <p className="mt-4 text-sm font-semibold text-gray-500">Checking client access…</p>
+        </div>
+      </main>
+    );
   }
 
   return children;
