@@ -36,10 +36,19 @@ export const authenticationPlugin = fp(async (app) => {
       if (request.user.type !== "access" || !request.user.sub || !supportedRoles.has(request.user.role)) {
         throw new Error("Invalid access token payload");
       }
+
+      const user = await app.prisma.user.findFirst({
+        where: { id: request.user.sub, active: true },
+        select: { role: true },
+      });
+
+      if (!user || user.role !== request.user.role) {
+        throw new Error("Access token user is no longer valid");
+      }
     } catch {
       throw new AppError("Authentication is required.", 401, "UNAUTHORIZED");
     }
   };
 
   app.decorate("authenticate", authenticate);
-}, { name: "authentication" });
+}, { name: "authentication", dependencies: ["database"] });

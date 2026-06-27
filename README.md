@@ -24,7 +24,9 @@ npm run dev:api
 
 The API listens on [http://127.0.0.1:4000](http://127.0.0.1:4000). Foundation routes are available at `GET /health` and `GET /api/status`; authentication routes are available at `POST /api/auth/register`, `POST /api/auth/login`, and protected `GET /api/auth/me`.
 
-Public registration accepts `TRAINER` and `CLIENT` roles. `ADMIN` is supported by the database and JWT authorization model but is intentionally not assignable through public registration. CMS content endpoints are not implemented yet.
+Public registration accepts `TRAINER` and `CLIENT` roles. `ADMIN` is supported by the database and JWT authorization model but is intentionally not assignable through public registration.
+
+Protected CMS endpoints are available under `/api/cms` for trainer profiles, achievements, certifications, programs, gallery images, testimonials, and contact messages. They require a Bearer token for an active `ADMIN` or `TRAINER`. Published website content and contact submission are available under `/api/public` without authentication.
 
 ## CMS frontend demo
 
