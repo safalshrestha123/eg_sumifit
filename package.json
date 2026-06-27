@@ -2,15 +2,26 @@
   "name": "sumifitness",
   "version": "1.0.0",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "engines": {
     "node": "^20.19.0 || ^22.13.0 || >=24"
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "dev:web": "next dev",
+    "dev:api": "npm run db:generate && npm run build --workspace @sumifitness/db && npm run dev --workspace @sumifitness/api",
+    "build": "npm run db:generate && next build && npm run build --workspace @sumifitness/db && npm run build --workspace @sumifitness/api",
     "start": "next start",
+    "start:api": "npm run start --workspace @sumifitness/api",
     "lint": "eslint .",
-    "typecheck": "next typegen && tsc --noEmit"
+    "typecheck": "npm run db:generate && next typegen && tsc --noEmit && npm run typecheck --workspaces --if-present",
+    "db:generate": "npm run generate --workspace @sumifitness/db",
+    "db:validate": "npm run validate --workspace @sumifitness/db",
+    "db:migrate": "npm run migrate:dev --workspace @sumifitness/db",
+    "db:studio": "npm run studio --workspace @sumifitness/db"
   },
   "dependencies": {
     "@hookform/resolvers": "5.4.0",
