@@ -22,7 +22,9 @@ npm run db:generate
 npm run dev:api
 ```
 
-The API listens on [http://127.0.0.1:4000](http://127.0.0.1:4000) and currently exposes `GET /health` and `GET /api/status`. The database schema is defined, but there are no CMS endpoints or authentication flows yet.
+The API listens on [http://127.0.0.1:4000](http://127.0.0.1:4000). Foundation routes are available at `GET /health` and `GET /api/status`; authentication routes are available at `POST /api/auth/register`, `POST /api/auth/login`, and protected `GET /api/auth/me`.
+
+Public registration accepts `TRAINER` and `CLIENT` roles. `ADMIN` is supported by the database and JWT authorization model but is intentionally not assignable through public registration. CMS content endpoints are not implemented yet.
 
 ## CMS frontend demo
 

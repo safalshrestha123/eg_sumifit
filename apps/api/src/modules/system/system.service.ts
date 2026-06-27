@@ -8,7 +8,7 @@ export function getApiStatus(environment: Environment) {
     environment: environment.NODE_ENV,
     capabilities: {
       database: "configured" as const,
-      authentication: environment.JWT_SECRET ? "jwt-ready" as const : "not-configured" as const,
+      authentication: "available" as const,
       cmsApi: "not-implemented" as const,
     },
   };

@@ -1,6 +1,5 @@
 import type { FastifyInstance } from "fastify";
 
-import { env } from "../config/index.js";
 import { AppError } from "../utils/errors.js";
 
 export function registerErrorHandlers(app: FastifyInstance) {
@@ -13,7 +12,7 @@ export function registerErrorHandlers(app: FastifyInstance) {
         ? httpError.statusCode
         : 500;
     const code = normalizedError instanceof AppError ? normalizedError.code : statusCode === 500 ? "INTERNAL_SERVER_ERROR" : (httpError.code ?? "REQUEST_ERROR");
-    const message = statusCode === 500 && env.NODE_ENV === "production"
+    const message = statusCode === 500
       ? "An unexpected error occurred."
       : normalizedError.message;
 
@@ -26,6 +25,7 @@ export function registerErrorHandlers(app: FastifyInstance) {
         code,
         message,
         requestId: request.id,
+        ...(normalizedError instanceof AppError && normalizedError.details ? { details: normalizedError.details } : {}),
       },
     });
   });

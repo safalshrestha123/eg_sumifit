@@ -12,7 +12,9 @@ const environmentSchema = z.object({
     (value) => value.startsWith("postgresql://") || value.startsWith("postgres://"),
     "DATABASE_URL must be a PostgreSQL connection string.",
   ),
-  JWT_SECRET: z.string().min(32, "JWT_SECRET must contain at least 32 characters.").optional(),
+  JWT_SECRET: z.string().min(32, "JWT_SECRET must contain at least 32 characters."),
+  JWT_ACCESS_EXPIRES_IN: z.string().min(2).default("15m"),
+  BCRYPT_ROUNDS: z.coerce.number().int().min(10).max(14).default(12),
 });
 
 const parsedEnvironment = environmentSchema.safeParse(process.env);

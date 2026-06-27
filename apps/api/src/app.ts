@@ -1,7 +1,7 @@
 import Fastify from "fastify";
 
 import { env } from "./config/index.js";
-import { corsPlugin, databasePlugin, registerErrorHandlers } from "./plugins/index.js";
+import { authenticationPlugin, corsPlugin, databasePlugin, registerErrorHandlers } from "./plugins/index.js";
 import { registerRoutes } from "./routes/index.js";
 
 export async function buildApp() {
@@ -14,6 +14,7 @@ export async function buildApp() {
   registerErrorHandlers(app);
   await app.register(corsPlugin);
   await app.register(databasePlugin);
+  await app.register(authenticationPlugin);
   await registerRoutes(app);
 
   return app;

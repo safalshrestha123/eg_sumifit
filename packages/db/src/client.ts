@@ -23,5 +23,6 @@ if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;
 }
 
-export { PrismaClient } from "./generated/prisma/client.js";
+export { Prisma, PrismaClient, UserRole } from "./generated/prisma/client.js";
+export type { User } from "./generated/prisma/client.js";
 export type DatabaseClient = ReturnType<typeof createPrismaClient>;

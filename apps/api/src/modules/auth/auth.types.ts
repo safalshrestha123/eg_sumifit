@@ -1,11 +1,7 @@
+export type UserRole = "ADMIN" | "TRAINER" | "CLIENT";
+
 export interface AccessTokenPayload {
   sub: string;
-  role: "ADMIN";
+  role: UserRole;
   type: "access";
-}
-
-export interface RefreshTokenPayload {
-  sub: string;
-  tokenVersion: number;
-  type: "refresh";
 }
