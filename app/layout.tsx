@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 
-import { Footer } from "@/components/layout/footer";
-import { Navbar } from "@/components/layout/navbar";
+import { SiteShell } from "@/components/layout/site-shell";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { createPageMetadata, siteConfig } from "@/lib/site";
 
@@ -29,10 +28,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" suppressHydrationWarning>
       <body className={`${geist.className} min-h-screen bg-white text-gray-900 antialiased dark:bg-gray-950 dark:text-gray-100`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <a href="#main-content" className="skip-link">Skip to main content</a>
-          <Navbar />
-          <main id="main-content">{children}</main>
-          <Footer />
+          <SiteShell>{children}</SiteShell>
         </ThemeProvider>
       </body>
     </html>

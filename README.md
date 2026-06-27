@@ -11,6 +11,10 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+## CMS frontend demo
+
+Open [http://localhost:3000/admin/login](http://localhost:3000/admin/login) to preview the Phase 2 content workspace. The admin routes use mock data and local component state only—there is no authentication, API, database, or persistence layer.
+
 ## Quality checks
 
 ```bash
