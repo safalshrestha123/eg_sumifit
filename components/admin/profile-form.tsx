@@ -1,10 +1,10 @@
 "use client";
 
 import { AlertCircle, Check, Loader2, Save } from "lucide-react";
-import Image from "next/image";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { z } from "zod";
 
+import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -63,6 +63,7 @@ export function ProfileForm() {
   const [formVersion, setFormVersion] = useState(0);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
   const [initialLoadFailed, setInitialLoadFailed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -153,12 +154,10 @@ export function ProfileForm() {
   if (initialLoadFailed) return <Card className="mt-8 grid min-h-64 place-items-center rounded-2xl p-8 text-center"><div><AlertCircle className="mx-auto size-8 text-red-500" /><p className="mt-3 text-sm font-semibold text-red-700" role="alert">{error}</p><Button type="button" variant="outline" className="mt-4" onClick={() => void loadProfile()}>Retry</Button></div></Card>;
 
   const values = profile ?? blankProfile;
-  const previewImage = values.avatarUrl?.startsWith("/") ? values.avatarUrl : "/images/sumi-hero.png";
-
   return (
     <form key={`${profile?.id ?? "new-profile"}-${formVersion}`} onSubmit={save} className="mt-8 grid gap-6 xl:grid-cols-[0.7fr_1.3fr]">
       <div className="space-y-6">
-        <Card className="rounded-2xl shadow-none"><CardHeader><CardTitle>Profile image</CardTitle><CardDescription>Used on the homepage and about page.</CardDescription></CardHeader><CardContent className="pt-0"><div className="relative mx-auto aspect-[4/5] max-w-xs overflow-hidden rounded-3xl bg-gray-100"><Image src={previewImage} alt="Current trainer profile" fill sizes="320px" className="object-cover" /></div><p className="mt-3 text-center text-xs text-gray-400">Set an existing image URL in the profile form. Uploads are not enabled.</p></CardContent></Card>
+        <Card className="rounded-2xl shadow-none"><CardHeader><CardTitle>Profile image</CardTitle><CardDescription>Used on the homepage and about page.</CardDescription></CardHeader><CardContent className="pt-0"><ImageUploadField name="avatarUrl" label="Profile image URL" defaultValue={values.avatarUrl ?? ""} fallback="/images/sumi-hero.png" previewClassName="mx-auto aspect-[4/5] max-w-xs rounded-3xl" onUploadingChange={setImageUploading} /></CardContent></Card>
         <Card className="rounded-2xl shadow-none"><CardHeader><CardTitle>Profile visibility</CardTitle></CardHeader><CardContent className="pt-0"><div className="flex items-center justify-between rounded-2xl bg-gray-50 p-4 dark:bg-gray-950"><div><p className="text-sm font-bold">Publish profile</p><p className="mt-1 text-xs text-gray-500">Controls the public profile API.</p></div><div className="flex items-center gap-3"><Badge variant={published ? "success" : "warning"}>{published ? "Live" : "Draft"}</Badge><Switch checked={published} onCheckedChange={setPublished} aria-label="Publish profile" /></div></div></CardContent></Card>
       </div>
 
@@ -168,12 +167,11 @@ export function ProfileForm() {
           <div className="grid gap-5 sm:grid-cols-2"><FormField label="Display name" id="profile-name"><Input id="profile-name" name="displayName" defaultValue={values.displayName} required /></FormField><FormField label="Professional title" id="profile-title"><Input id="profile-title" name="professionalTitle" defaultValue={values.professionalTitle} required /></FormField></div>
           <FormField label="Short introduction" id="profile-intro" hint="Appears in cards and compact profile sections."><Textarea id="profile-intro" name="shortBio" className="min-h-24" defaultValue={values.shortBio ?? ""} /></FormField>
           <FormField label="Full biography" id="profile-bio" hint="Appears on the About page."><Textarea id="profile-bio" name="biography" className="min-h-48" defaultValue={values.biography ?? ""} /></FormField>
-          <FormField label="Profile image URL" id="profile-avatar"><Input id="profile-avatar" name="avatarUrl" defaultValue={values.avatarUrl ?? ""} placeholder="/images/sumi-hero.png" /></FormField>
           <div className="grid gap-5 sm:grid-cols-2"><FormField label="Years of experience" id="profile-experience"><Input id="profile-experience" name="yearsExperience" type="number" defaultValue={values.yearsExperience} min="0" max="80" required /></FormField><FormField label="Clients coached" id="profile-clients"><Input id="profile-clients" name="clientsCoached" type="number" defaultValue={values.clientsCoached} min="0" required /></FormField></div>
           <div className="grid gap-5 sm:grid-cols-2"><FormField label="Location" id="profile-location"><Input id="profile-location" name="location" defaultValue={values.location ?? ""} /></FormField><FormField label="Specialization" id="profile-specialization"><Input id="profile-specialization" name="specialization" defaultValue={values.specialization ?? ""} /></FormField></div>
           <FormField label="Phone" id="profile-phone"><Input id="profile-phone" name="phone" type="tel" defaultValue={values.phone ?? ""} /></FormField>
           {(error || success) && <p className={`rounded-xl px-4 py-3 text-sm font-medium ${error ? "bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-300" : "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300"}`} role={error ? "alert" : "status"}>{error ?? <><Check className="mr-1 inline size-4" /> {success}</>}</p>}
-          <div className="flex flex-col-reverse gap-3 border-t border-gray-100 pt-6 dark:border-gray-800 sm:flex-row sm:items-center sm:justify-end"><Button type="button" variant="outline" disabled={submitting} onClick={() => void loadProfile()}>Discard</Button><Button type="submit" disabled={submitting}>{submitting ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />} Save profile</Button></div>
+          <div className="flex flex-col-reverse gap-3 border-t border-gray-100 pt-6 dark:border-gray-800 sm:flex-row sm:items-center sm:justify-end"><Button type="button" variant="outline" disabled={submitting || imageUploading} onClick={() => void loadProfile()}>Discard</Button><Button type="submit" disabled={submitting || imageUploading}>{submitting || imageUploading ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />} {imageUploading ? "Uploading image…" : "Save profile"}</Button></div>
         </CardContent>
       </Card>
     </form>

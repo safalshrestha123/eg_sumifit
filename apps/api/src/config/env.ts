@@ -2,6 +2,11 @@ import "dotenv/config";
 
 import { z } from "zod";
 
+const optionalEnvironmentValue = z.preprocess(
+  (value) => typeof value === "string" && value.trim() === "" ? undefined : value,
+  z.string().trim().min(1).optional(),
+);
+
 const environmentSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   HOST: z.string().min(1).default("127.0.0.1"),
@@ -15,6 +20,16 @@ const environmentSchema = z.object({
   JWT_SECRET: z.string().min(32, "JWT_SECRET must contain at least 32 characters."),
   JWT_ACCESS_EXPIRES_IN: z.string().min(2).default("15m"),
   BCRYPT_ROUNDS: z.coerce.number().int().min(10).max(14).default(12),
+  CLOUDINARY_CLOUD_NAME: optionalEnvironmentValue,
+  CLOUDINARY_API_KEY: optionalEnvironmentValue,
+  CLOUDINARY_API_SECRET: optionalEnvironmentValue,
+  UPLOAD_MAX_FILE_SIZE: z.coerce.number().int().min(1_048_576).max(10_485_760).default(5_242_880),
+}).superRefine((value, context) => {
+  const cloudinaryValues = [value.CLOUDINARY_CLOUD_NAME, value.CLOUDINARY_API_KEY, value.CLOUDINARY_API_SECRET];
+  const configuredValues = cloudinaryValues.filter(Boolean).length;
+  if (configuredValues > 0 && configuredValues < cloudinaryValues.length) {
+    context.addIssue({ code: "custom", path: ["CLOUDINARY_CLOUD_NAME"], message: "Cloudinary credentials must be configured together." });
+  }
 });
 
 const parsedEnvironment = environmentSchema.safeParse(process.env);

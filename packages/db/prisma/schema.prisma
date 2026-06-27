@@ -109,6 +109,7 @@ model GalleryImage {
 model Testimonial {
   id        String   @id @default(cuid())
   name      String
+  avatarUrl String?
   role      String?
   quote     String
   result    String?

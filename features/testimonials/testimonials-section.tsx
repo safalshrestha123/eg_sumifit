@@ -11,6 +11,7 @@ export async function TestimonialsSection() {
 
   const testimonials: Testimonial[] = result.data.data.map((testimonial) => ({
     name: testimonial.name,
+    avatarUrl: testimonial.avatarUrl || undefined,
     role: testimonial.role || "",
     quote: testimonial.quote,
     result: testimonial.result || "",

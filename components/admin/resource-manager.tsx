@@ -1,10 +1,10 @@
 "use client";
 
 import { AlertCircle, FilePenLine, Loader2, Plus, Search, Trash2 } from "lucide-react";
-import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 
 import { EmptyState } from "@/components/admin/empty-state";
+import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { PublishToggle } from "@/components/admin/publish-toggle";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { CmsImage } from "@/components/shared/cms-image";
 import { fieldValue, parseResourceForm, resourceConfigs, type CmsField } from "@/features/admin/cms-resources";
 import type { AdminCollectionItem, CmsRecord, CmsResource } from "@/features/admin/types";
 import { apiRequest, errorMessage } from "@/lib/api/client";
@@ -37,6 +38,7 @@ export function ResourceManager({ resource, eyebrow, title, description, singula
   const [published, setPublished] = useState(true);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
@@ -83,6 +85,7 @@ export function ResourceManager({ resource, eyebrow, title, description, singula
     setEditing(null);
     setPublished(true);
     setFormError(null);
+    setImageUploading(false);
     setDialogOpen(true);
   };
 
@@ -91,6 +94,7 @@ export function ResourceManager({ resource, eyebrow, title, description, singula
     setEditing(item.record);
     setPublished(item.record.published);
     setFormError(null);
+    setImageUploading(false);
     setDialogOpen(true);
   };
 
@@ -179,7 +183,7 @@ export function ResourceManager({ resource, eyebrow, title, description, singula
           <div className="grid gap-4 p-4 sm:grid-cols-2 sm:p-5 xl:grid-cols-3">
             {filteredItems.map((item) => (
               <article key={item.id} className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800">
-                <div className="relative aspect-[4/3] bg-gray-100 dark:bg-gray-950"><Image src={item.image?.startsWith("/") ? item.image : "/images/training.png"} alt={item.title} fill sizes="(min-width: 1280px) 25vw, (min-width: 640px) 40vw, 90vw" className="object-cover" /></div>
+                <div className="relative aspect-[4/3] bg-gray-100 dark:bg-gray-950"><CmsImage src={item.image ?? "/images/training.png"} alt={item.title} fill sizes="(min-width: 1280px) 25vw, (min-width: 640px) 40vw, 90vw" className="object-cover" /></div>
                 <div className="p-4"><div className="flex items-start justify-between gap-3"><div><h2 className="font-bold">{item.title}</h2><p className="mt-1 text-xs text-gray-500">{item.meta}</p></div><Badge variant={item.status === "Published" ? "success" : "warning"}>{item.status}</Badge></div><p className="mt-3 line-clamp-2 text-sm text-gray-500">{item.description}</p><div className="mt-4 flex items-center justify-between gap-3 border-t border-gray-100 pt-4 dark:border-gray-800"><PublishToggle published={item.status === "Published"} label={item.title} disabled={activeId === item.id} onChange={(value) => void togglePublished(item.id, value)} /><ItemActions item={item} singular={singular} disabled={activeId === item.id} onEdit={openEdit} onRemove={(id) => void removeItem(id)} /></div></div>
               </article>
             ))}
@@ -199,14 +203,14 @@ export function ResourceManager({ resource, eyebrow, title, description, singula
         )}
       </Card>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={(open) => { if (!imageUploading) setDialogOpen(open); }}>
         <DialogContent className="max-h-[90vh] max-w-xl overflow-y-auto bg-white p-0 text-gray-950 dark:bg-gray-900 dark:text-white">
           <div className="border-b border-gray-100 px-6 py-5 pr-16 dark:border-gray-800"><DialogTitle className="text-xl font-black">{editing ? `Edit ${singular.toLowerCase()}` : `Add ${singular.toLowerCase()}`}</DialogTitle><DialogDescription className="mt-1 text-sm text-gray-500">Save this content to the CMS API and control its public visibility.</DialogDescription></div>
           <form key={editing?.id ?? "create"} onSubmit={saveItem} className="space-y-5 p-6">
-            {config.fields.map((field) => <ResourceField key={field.name} field={field} record={editing} resource={resource} />)}
+            {config.fields.map((field) => <ResourceField key={field.name} field={field} record={editing} resource={resource} onUploadingChange={setImageUploading} />)}
             <div className="flex items-center justify-between rounded-2xl bg-gray-50 p-4 dark:bg-gray-950"><div><p className="text-sm font-bold">Publish on website</p><p className="mt-1 text-xs text-gray-500">Draft items remain hidden from public API responses.</p></div><Switch checked={published} onCheckedChange={setPublished} aria-label="Publish on website" /></div>
             {formError && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:bg-red-950/30 dark:text-red-300" role="alert">{formError}</p>}
-            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><Button type="button" variant="outline" disabled={submitting} onClick={() => setDialogOpen(false)}>Cancel</Button><Button type="submit" disabled={submitting}>{submitting && <Loader2 className="size-4 animate-spin" />}{editing ? "Save changes" : `Create ${singular.toLowerCase()}`}</Button></div>
+            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><Button type="button" variant="outline" disabled={submitting || imageUploading} onClick={() => setDialogOpen(false)}>Cancel</Button><Button type="submit" disabled={submitting || imageUploading}>{(submitting || imageUploading) && <Loader2 className="size-4 animate-spin" />}{imageUploading ? "Uploading image…" : editing ? "Save changes" : `Create ${singular.toLowerCase()}`}</Button></div>
           </form>
         </DialogContent>
       </Dialog>
@@ -214,9 +218,12 @@ export function ResourceManager({ resource, eyebrow, title, description, singula
   );
 }
 
-function ResourceField({ field, record, resource }: { field: CmsField; record: CmsRecord | null; resource: CmsResource }) {
+function ResourceField({ field, record, resource, onUploadingChange }: { field: CmsField; record: CmsRecord | null; resource: CmsResource; onUploadingChange: (uploading: boolean) => void }) {
   const id = `${resource}-${field.name}`;
   const shared = { id, name: field.name, defaultValue: fieldValue(record, field), required: field.required, placeholder: field.placeholder };
+  if (field.type === "image" && (field.name === "imageUrl" || field.name === "avatarUrl")) {
+    return <ImageUploadField name={field.name} label={field.label} defaultValue={fieldValue(record, field)} required={field.required} fallback={resource === "gallery" ? "/images/training.png" : "/images/coaching.png"} onUploadingChange={onUploadingChange} />;
+  }
   return (
     <div className="space-y-2">
       <Label htmlFor={id}>{field.label}</Label>

@@ -59,6 +59,7 @@ export interface PublicGalleryImage {
 export interface PublicTestimonial {
   id: string;
   name: string;
+  avatarUrl: string | null;
   role: string | null;
   quote: string;
   result: string | null;

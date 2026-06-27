@@ -14,6 +14,15 @@ export interface AuthUser {
   updatedAt: string;
 }
 
+export interface UploadedImage {
+  secure_url: string;
+  public_id: string;
+  width: number;
+  height: number;
+  bytes: number;
+  format: string;
+}
+
 interface ApiErrorPayload {
   error?: {
     code?: string;
@@ -87,6 +96,45 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   return payload as T;
 }
 
+export function uploadImageFile(file: File, onProgress?: (percentage: number) => void): Promise<UploadedImage> {
+  const token = getAccessToken();
+  if (!token) {
+    expireSession();
+    return Promise.reject(new ApiError("Authentication is required.", 401, "UNAUTHORIZED"));
+  }
+
+  return new Promise((resolve, reject) => {
+    const request = new XMLHttpRequest();
+    const body = new FormData();
+    body.append("image", file);
+
+    request.open("POST", `${apiBaseUrl}/api/uploads/image`);
+    request.setRequestHeader("Authorization", `Bearer ${token}`);
+    request.setRequestHeader("Accept", "application/json");
+    request.upload.addEventListener("progress", (event) => {
+      if (event.lengthComputable) onProgress?.(Math.round((event.loaded / event.total) * 100));
+    });
+    request.addEventListener("error", () => reject(new ApiError("The API is unavailable. Confirm that the backend is running.", 0, "NETWORK_ERROR")));
+    request.addEventListener("abort", () => reject(new ApiError("The upload was cancelled.", 0, "UPLOAD_CANCELLED")));
+    request.addEventListener("load", () => {
+      const payload = parseJsonResponse<{ image?: UploadedImage } & ApiErrorPayload>(request.responseText);
+      if (request.status < 200 || request.status >= 300 || !payload?.image) {
+        if (request.status === 401) expireSession();
+        reject(new ApiError(
+          payload?.error?.message ?? "The image could not be uploaded.",
+          request.status,
+          payload?.error?.code,
+          payload?.error?.details,
+        ));
+        return;
+      }
+      onProgress?.(100);
+      resolve(payload.image);
+    });
+    request.send(body);
+  });
+}
+
 export function setAuthSession(accessToken: string, user: AuthUser) {
   if (typeof window === "undefined") return;
   window.sessionStorage.setItem(tokenKey, accessToken);
@@ -120,4 +168,12 @@ export function clearAuthSession() {
 function expireSession() {
   clearAuthSession();
   if (typeof window !== "undefined") window.dispatchEvent(new Event(authExpiredEvent));
+}
+
+function parseJsonResponse<T>(value: string): T | null {
+  try {
+    return JSON.parse(value) as T;
+  } catch {
+    return null;
+  }
 }
