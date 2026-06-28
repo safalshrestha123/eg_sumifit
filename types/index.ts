@@ -18,6 +18,7 @@ export interface Achievement {
 
 export interface Testimonial {
   name: string;
+  avatarUrl?: string;
   role: string;
   quote: string;
   result: string;

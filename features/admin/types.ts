@@ -12,6 +12,7 @@ export interface CmsRecord {
   credentialUrl?: string | null;
   slug?: string;
   imageUrl?: string | null;
+  avatarUrl?: string | null;
   duration?: string | null;
   format?: string | null;
   benefits?: string[];

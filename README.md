@@ -42,6 +42,19 @@ The web app reads `NEXT_PUBLIC_API_URL` from `.env.local` and defaults to `http:
 
 The public profile, achievements, certifications, programs, gallery, and testimonials are rendered from published CMS API records. The public contact form submits to `POST /api/public/contact`, and new enquiries appear in the protected CMS messages view.
 
+## Image uploads
+
+CMS image uploads use Cloudinary through the protected `POST /api/uploads/image` endpoint. Add your Cloudinary credentials to `apps/api/.env`; they are read by the backend only and must never use a `NEXT_PUBLIC_` prefix:
+
+```env
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+UPLOAD_MAX_FILE_SIZE=5242880
+```
+
+Uploads require an authenticated `ADMIN` or `TRAINER` account. JPEG, PNG, WebP, GIF, and AVIF files up to 5 MB are accepted. Profile, program, gallery, and testimonial forms save the returned secure Cloudinary URL with their CMS record.
+
 ## Quality checks
 
 ```bash

@@ -5,7 +5,7 @@ import type { AdminCollectionItem, CmsRecord, CmsResource } from "@/features/adm
 export interface CmsField {
   name: keyof CmsRecord;
   label: string;
-  type: "text" | "textarea" | "number" | "url" | "list";
+  type: "text" | "textarea" | "number" | "url" | "list" | "image";
   required?: boolean;
   placeholder?: string;
   min?: number;
@@ -57,7 +57,7 @@ export const resourceConfigs: Record<CmsResource, ResourceConfig> = {
       { name: "title", label: "Title", type: "text", required: true, placeholder: "Program title" },
       { name: "slug", label: "URL slug", type: "text", required: true, placeholder: "online-coaching" },
       { name: "description", label: "Description", type: "textarea", required: true, placeholder: "Describe the coaching offer…" },
-      { name: "imageUrl", label: "Image URL", type: "text", placeholder: "/images/coaching.png" },
+      { name: "imageUrl", label: "Program image", type: "image", placeholder: "/images/coaching.png" },
       { name: "duration", label: "Duration", type: "text", placeholder: "12 weeks" },
       { name: "format", label: "Format", type: "text", placeholder: "Online, in person…" },
       { name: "benefits", label: "Benefits", type: "list", placeholder: "One benefit per line" },
@@ -72,7 +72,7 @@ export const resourceConfigs: Record<CmsResource, ResourceConfig> = {
     fields: [
       { name: "title", label: "Title", type: "text", required: true, placeholder: "Image title" },
       { name: "altText", label: "Alternative text", type: "text", required: true, placeholder: "Describe the image for accessibility" },
-      { name: "imageUrl", label: "Image URL", type: "text", required: true, placeholder: "/images/training.png" },
+      { name: "imageUrl", label: "Gallery image", type: "image", required: true, placeholder: "/images/training.png" },
       { name: "category", label: "Category", type: "text", placeholder: "Training, coaching…" },
       { name: "description", label: "Description", type: "textarea", placeholder: "Optional internal description…" },
       { name: "sortOrder", label: "Sort order", type: "number", min: 0 },
@@ -85,13 +85,14 @@ export const resourceConfigs: Record<CmsResource, ResourceConfig> = {
     responseKey: "testimonial",
     fields: [
       { name: "name", label: "Client name", type: "text", required: true, placeholder: "Client name" },
+      { name: "avatarUrl", label: "Client avatar", type: "image", placeholder: "https://res.cloudinary.com/…" },
       { name: "role", label: "Client context", type: "text", placeholder: "Online coaching client" },
       { name: "quote", label: "Testimonial", type: "textarea", required: true, placeholder: "Client story…" },
       { name: "result", label: "Result", type: "text", placeholder: "First unassisted pull-up" },
       { name: "rating", label: "Rating", type: "number", min: 1, max: 5 },
       { name: "sortOrder", label: "Sort order", type: "number", min: 0 },
     ],
-    schema: z.object({ name: z.string().trim().min(2).max(150), role: nullableText(150), quote: z.string().trim().min(10).max(5_000), result: nullableText(300), rating: z.number().int().min(1).max(5), sortOrder, published: z.boolean() }),
+    schema: z.object({ name: z.string().trim().min(2).max(150), avatarUrl: nullableText(2_000), role: nullableText(150), quote: z.string().trim().min(10).max(5_000), result: nullableText(300), rating: z.number().int().min(1).max(5), sortOrder, published: z.boolean() }),
     toDisplay: (record) => display(record, record.name, record.quote, [record.result, record.role].filter(Boolean).join(" · ")),
   },
 };

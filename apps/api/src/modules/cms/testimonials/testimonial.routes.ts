@@ -7,6 +7,7 @@ import { idParamsSchema, nullableText, requirePatchFields, rethrowPrismaError } 
 
 const testimonialSchema = z.object({
   name: z.string().trim().min(2).max(150),
+  avatarUrl: nullableText(2_000),
   role: nullableText(150),
   quote: z.string().trim().min(10).max(5_000),
   result: nullableText(300),

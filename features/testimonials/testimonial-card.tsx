@@ -1,5 +1,6 @@
 import { Quote, Star } from "lucide-react";
 
+import { CmsImage } from "@/components/shared/cms-image";
 import { Card } from "@/components/ui/card";
 import type { Testimonial } from "@/types";
 
@@ -13,7 +14,7 @@ export function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
       <blockquote className="mt-6 text-balance text-xl font-semibold leading-8 text-gray-900 dark:text-white">“{testimonial.quote}”</blockquote>
       {testimonial.result && <p className="mt-6 inline-flex rounded-full bg-green-50 px-3 py-1 text-xs font-bold text-green-700 dark:bg-green-500/10 dark:text-green-400">{testimonial.result}</p>}
       <div className="mt-8 flex items-center gap-3 border-t border-gray-100 pt-6 dark:border-gray-800">
-        <span className="grid size-11 place-items-center rounded-full bg-gray-900 text-sm font-black text-white dark:bg-white dark:text-gray-950">{testimonial.initials}</span>
+        {testimonial.avatarUrl ? <span className="relative size-11 shrink-0 overflow-hidden rounded-full bg-gray-100"><CmsImage src={testimonial.avatarUrl} alt={`${testimonial.name} avatar`} fill sizes="44px" className="object-cover" /></span> : <span className="grid size-11 place-items-center rounded-full bg-gray-900 text-sm font-black text-white dark:bg-white dark:text-gray-950">{testimonial.initials}</span>}
         <div><p className="font-bold text-gray-950 dark:text-white">{testimonial.name}</p>{testimonial.role && <p className="text-xs text-gray-500">{testimonial.role}</p>}</div>
       </div>
     </Card>
