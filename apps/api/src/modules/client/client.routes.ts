@@ -1,9 +1,14 @@
 import type { FastifyPluginAsync } from "fastify";
+import { z } from "zod";
 
+import { clientEnrollmentSelect, isPrismaError } from "../enrollments/enrollment.common.js";
 import { AppError } from "../../utils/errors.js";
-import { parseRequestBody } from "../../utils/validation.js";
+import { paginationMeta, paginationQuerySchema, toPrismaPagination } from "../../utils/pagination.js";
+import { parseRequestBody, parseRequestParams, parseRequestQuery } from "../../utils/validation.js";
 import { requireRoles } from "../auth/auth.middleware.js";
 import { clientProfilePatchSchema } from "./client.schemas.js";
+
+const programParamsSchema = z.object({ programId: z.string().trim().min(1).max(64) }).strict();
 
 export const clientRoutes: FastifyPluginAsync = async (app) => {
   app.addHook("preHandler", app.authenticate);
@@ -11,6 +16,45 @@ export const clientRoutes: FastifyPluginAsync = async (app) => {
 
   app.get("/profile", async (request) => {
     return getClientProfile(app, request.user.sub);
+  });
+
+  app.get("/enrollments", async (request) => {
+    const query = parseRequestQuery(paginationQuerySchema, request.query);
+    const where = { userId: request.user.sub };
+    const [data, total] = await app.prisma.$transaction([
+      app.prisma.programEnrollment.findMany({
+        where,
+        select: clientEnrollmentSelect,
+        orderBy: { createdAt: "desc" },
+        ...toPrismaPagination(query.page, query.pageSize),
+      }),
+      app.prisma.programEnrollment.count({ where }),
+    ]);
+    return { data, pagination: paginationMeta(total, query.page, query.pageSize) };
+  });
+
+  app.post("/programs/:programId/enroll", async (request, reply) => {
+    const { programId } = parseRequestParams(programParamsSchema, request.params);
+    const program = await app.prisma.program.findFirst({
+      where: { id: programId, published: true },
+      select: { id: true },
+    });
+    if (!program) {
+      throw new AppError("Published program was not found.", 404, "PROGRAM_NOT_FOUND");
+    }
+
+    try {
+      const enrollment = await app.prisma.programEnrollment.create({
+        data: { userId: request.user.sub, programId: program.id },
+        select: clientEnrollmentSelect,
+      });
+      return reply.status(201).send({ enrollment });
+    } catch (error) {
+      if (isPrismaError(error, "P2002")) {
+        throw new AppError("You are already enrolled in this program.", 409, "ALREADY_ENROLLED");
+      }
+      throw error;
+    }
   });
 
   app.patch("/profile", async (request) => {

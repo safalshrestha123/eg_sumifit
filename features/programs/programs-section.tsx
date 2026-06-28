@@ -16,6 +16,7 @@ export async function ProgramsSection({ preview = false }: { preview?: boolean }
   if (!result.ok) return <section className="section-padding bg-gray-50 dark:bg-gray-900/50"><div className="container-shell"><PublicDataState error title="Programs unavailable" description={result.message} /></div></section>;
 
   const programs: Program[] = result.data.data.map((program, index) => ({
+    id: program.id,
     title: program.title,
     slug: program.slug,
     description: program.description,

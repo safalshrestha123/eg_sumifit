@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 
 export interface Program {
+  id: string;
   title: string;
   slug: string;
   description: string;

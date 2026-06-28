@@ -1,8 +1,8 @@
-import { ArrowUpRight, Check } from "lucide-react";
-import Link from "next/link";
+import { Check } from "lucide-react";
 
 import { CmsImage } from "@/components/shared/cms-image";
 import { Card } from "@/components/ui/card";
+import { EnrollButton } from "@/features/programs/enroll-button";
 import type { Program } from "@/types";
 
 export function ProgramCard({ program }: { program: Program }) {
@@ -19,7 +19,7 @@ export function ProgramCard({ program }: { program: Program }) {
         <ul className="mt-5 space-y-2">
           {program.benefits.map((benefit) => <li key={benefit} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><Check className="size-4 text-green-500" />{benefit}</li>)}
         </ul>
-        <Link href="/contact" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-orange-600 transition hover:gap-3 dark:text-orange-400">Start this program <ArrowUpRight className="size-4" /></Link>
+        <div className="mt-6"><EnrollButton programId={program.id} programTitle={program.title} /></div>
       </div>
     </Card>
   );

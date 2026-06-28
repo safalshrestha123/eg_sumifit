@@ -25,6 +25,10 @@ export function rethrowPrismaError(error: unknown, resource: string): never {
     throw new AppError(`${resource} conflicts with an existing record.`, 409, "CONFLICT");
   }
 
+  if (isPrismaError(error, "P2003")) {
+    throw new AppError(`${resource} is in use and cannot be deleted.`, 409, "RESOURCE_IN_USE");
+  }
+
   throw error;
 }
 
