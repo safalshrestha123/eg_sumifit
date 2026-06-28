@@ -1,0 +1,37 @@
+{
+  "name": "@sumifitness/db",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/client.js",
+  "types": "./src/client.ts",
+  "exports": {
+    ".": {
+      "types": "./src/client.ts",
+      "import": "./dist/client.js"
+    }
+  },
+  "scripts": {
+    "generate": "prisma generate",
+    "validate": "prisma validate",
+    "migrate:dev": "prisma migrate dev",
+    "studio": "prisma studio",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "6.19.1",
+    "@prisma/client": "6.19.1",
+    "pg": "8.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "20.19.43",
+    "@types/pg": "8.15.6",
+    "dotenv": "17.4.2",
+    "prisma": "6.19.1",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": "^20.19.0 || ^22.13.0 || >=24"
+  }
+}

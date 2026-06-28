@@ -7,9 +7,12 @@
 
 # production
 /build
+**/dist/
 
 # local environment files
 .env*
+!.env.example
+!**/.env.example
 
 # system and editor files
 .DS_Store
@@ -24,3 +27,6 @@ pnpm-debug.log*
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# generated Prisma client
+packages/db/src/generated/
