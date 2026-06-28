@@ -1,10 +1,12 @@
 import { ArrowRight, BadgeCheck, Heart, Target } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 
+import { CmsImage } from "@/components/shared/cms-image";
 import { MotionReveal } from "@/components/shared/motion-reveal";
+import { PublicDataState } from "@/components/shared/public-data-state";
 import { SectionTitle } from "@/components/shared/section-title";
 import { Button } from "@/components/ui/button";
+import { getPublicProfile } from "@/lib/api/public";
 
 const values = [
   { icon: Target, title: "Built for you", text: "Every plan starts with your goals, history, and real life." },
@@ -12,19 +14,26 @@ const values = [
   { icon: BadgeCheck, title: "Expert guidance", text: "Evidence-led coaching with honest feedback and clear progression." },
 ];
 
-export function AboutSection({ preview = false }: { preview?: boolean }) {
+export async function AboutSection({ preview = false }: { preview?: boolean }) {
+  const result = await getPublicProfile();
+  if (!result.ok) return <section className="section-padding bg-white dark:bg-gray-950"><div className="container-shell"><PublicDataState error title="About Sumi is unavailable" description={result.message} /></div></section>;
+
+  const profile = result.data.profile;
+  if (!profile) return <section className="section-padding bg-white dark:bg-gray-950"><div className="container-shell"><PublicDataState title="About Sumi is coming soon" description="Published trainer details will appear here once they are available." /></div></section>;
+
+  const profileImage = profile.avatarUrl || "/images/coaching.png";
   return (
     <section className="section-padding bg-white dark:bg-gray-950">
       <div className="container-shell grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
         <MotionReveal className="relative min-h-[28rem] overflow-hidden rounded-[2rem] sm:min-h-[36rem]">
-          <Image src="/images/coaching.png" alt="Sumi coaching a client during a strength session" fill sizes="(min-width: 1024px) 45vw, 90vw" className="object-cover" />
+          <CmsImage src={profileImage} fallback="/images/coaching.png" alt={`${profile.displayName}, ${profile.professionalTitle}`} fill sizes="(min-width: 1024px) 45vw, 90vw" className="object-cover" />
           <div className="absolute bottom-5 left-5 rounded-2xl bg-white p-5 shadow-xl dark:bg-gray-900">
-            <p className="text-3xl font-black text-orange-500">8+</p>
+            <p className="text-3xl font-black text-orange-500">{profile.yearsExperience}+</p>
             <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">Years changing lives</p>
           </div>
         </MotionReveal>
         <MotionReveal delay={0.1}>
-          <SectionTitle eyebrow="Meet your coach" title="Fitness should add to your life—not take it over." description="I’m Sumi, a certified personal trainer focused on helping women build strength and confidence through coaching that is personal, practical, and grounded in evidence." />
+          <SectionTitle eyebrow={`Meet ${profile.displayName}`} title="Fitness should add to your life—not take it over." description={profile.biography || profile.shortBio || profile.professionalTitle} />
           <div className="mt-8 space-y-5">
             {values.slice(0, preview ? 2 : 3).map(({ icon: Icon, title, text }) => (
               <div key={title} className="flex gap-4">

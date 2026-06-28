@@ -1,5 +1,8 @@
+import { Suspense } from "react";
+
 import { ContactCta } from "@/components/shared/contact-cta";
 import { PageHero } from "@/components/shared/page-hero";
+import { PublicSectionLoading } from "@/components/shared/public-data-state";
 import { AchievementsSection } from "@/features/achievements/achievements-section";
 import { createPageMetadata } from "@/lib/site";
 
@@ -10,5 +13,5 @@ export const metadata = createPageMetadata({
 });
 
 export default function AchievementsPage() {
-  return <><PageHero eyebrow="Achievements" title="Progress earned one consistent step at a time." description="A coaching career shaped by continued education, competition, and the success of hundreds of clients." /><AchievementsSection /><ContactCta /></>;
+  return <><PageHero eyebrow="Achievements" title="Progress earned one consistent step at a time." description="A coaching career shaped by continued education, competition, and the success of hundreds of clients." /><Suspense fallback={<PublicSectionLoading label="Loading achievements" />}><AchievementsSection /></Suspense><ContactCta /></>;
 }
