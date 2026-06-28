@@ -16,7 +16,15 @@ export const registerSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
   role: z.enum(["TRAINER", "CLIENT"]).default("CLIENT"),
-}).strict();
+  fullName: z.string().trim().min(2).max(120).optional(),
+  phone: z.string().trim().max(40).nullable().optional(),
+  fitnessGoal: z.string().trim().max(500).nullable().optional(),
+  experienceLevel: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]).nullable().optional(),
+}).strict().superRefine((value, context) => {
+  if (value.role === "CLIENT" && !value.fullName) {
+    context.addIssue({ code: "custom", path: ["fullName"], message: "Full name is required for client accounts." });
+  }
+});
 
 export const loginSchema = z.object({
   email: emailSchema,

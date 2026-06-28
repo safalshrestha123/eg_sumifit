@@ -25,13 +25,24 @@ export async function registerUser(database: DatabaseClient, input: RegisterInpu
   }
 
   const passwordHash = await bcrypt.hash(input.password, env.BCRYPT_ROUNDS);
+  const { email, role, fullName, phone, fitnessGoal, experienceLevel } = input;
 
   try {
     return await database.user.create({
       data: {
-        email: input.email,
+        email,
         passwordHash,
-        role: input.role,
+        role,
+        ...(role === "CLIENT" && fullName ? {
+          clientProfile: {
+            create: {
+              fullName,
+              phone,
+              fitnessGoal,
+              experienceLevel,
+            },
+          },
+        } : {}),
       },
       select: publicUserSelect,
     });

@@ -42,6 +42,12 @@ The web app reads `NEXT_PUBLIC_API_URL` from `.env.local` and defaults to `http:
 
 The public profile, achievements, certifications, programs, gallery, and testimonials are rendered from published CMS API records. The public contact form submits to `POST /api/public/contact`, and new enquiries appear in the protected CMS messages view.
 
+## Client portal
+
+Clients can create an account at [http://localhost:3000/client/register](http://localhost:3000/client/register), sign in at `/client/login`, and access the protected dashboard and profile pages under `/client`. Registration creates a `CLIENT` user and client profile; profile reads and updates use the role-protected `GET/PATCH /api/client/profile` endpoints.
+
+Client accounts cannot access CMS routes or the admin frontend. Administrator and trainer accounts remain restricted to the CMS and are redirected away from the client workspace.
+
 ## Image uploads
 
 CMS image uploads use Cloudinary through the protected `POST /api/uploads/image` endpoint. Add your Cloudinary credentials to `apps/api/.env`; they are read by the backend only and must never use a `NEXT_PUBLIC_` prefix:
