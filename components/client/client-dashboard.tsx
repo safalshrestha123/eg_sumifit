@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { EnrolledPrograms } from "@/components/client/enrolled-programs";
 import type { ClientProfileResponse, ExperienceLevel } from "@/features/client/types";
 import { apiRequest, errorMessage } from "@/lib/api/client";
 
@@ -43,6 +44,7 @@ export function ClientDashboard() {
         <StatCard icon={Dumbbell} label="Experience" value={formatExperience(profile?.experienceLevel)} detail="Training level" />
         <StatCard icon={Mail} label="Account email" value={data.email} detail="Login email" compact />
       </section>
+      <EnrolledPrograms />
     </div>
   );
 }

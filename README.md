@@ -48,6 +48,12 @@ Clients can create an account at [http://localhost:3000/client/register](http://
 
 Client accounts cannot access CMS routes or the admin frontend. Administrator and trainer accounts remain restricted to the CMS and are redirected away from the client workspace.
 
+## Program enrollment
+
+Authenticated clients can request enrollment in published programs from the public program cards. Client enrollments appear on `/client/dashboard`, and duplicate requests for the same program are rejected. Trainers and administrators can review all requests and update their `PENDING`, `APPROVED`, `REJECTED`, or `CANCELLED` status at `/admin/enrollments`.
+
+The protected enrollment API routes are `POST /api/client/programs/:programId/enroll`, `GET /api/client/enrollments`, `GET /api/cms/enrollments`, and `PATCH /api/cms/enrollments/:id`. Payments are intentionally not part of this phase.
+
 ## Image uploads
 
 CMS image uploads use Cloudinary through the protected `POST /api/uploads/image` endpoint. Add your Cloudinary credentials to `apps/api/.env`; they are read by the backend only and must never use a `NEXT_PUBLIC_` prefix:

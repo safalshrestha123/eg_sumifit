@@ -48,3 +48,29 @@ export interface ContactMessage {
   read: boolean;
   archived: boolean;
 }
+
+export type EnrollmentStatus = "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
+
+export interface CmsEnrollment {
+  id: string;
+  status: EnrollmentStatus;
+  createdAt: string;
+  updatedAt: string;
+  program: {
+    id: string;
+    slug: string;
+    title: string;
+    description: string;
+    imageUrl: string | null;
+    duration: string | null;
+    format: string | null;
+  };
+  user: {
+    id: string;
+    email: string;
+    clientProfile: {
+      fullName: string;
+      phone: string | null;
+    } | null;
+  };
+}
